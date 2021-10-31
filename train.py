@@ -32,15 +32,26 @@ import seaborn as sns
 import argparse
 import pickle
 
-# Modify parameters
-TEST = 1
-DATASET = "tipo_v4"
-WIDTH = 128
-HEIGHT = 128
-TEST_SIZE = 0.1
-LR = 0.003
-BS = 32
-EPOCHS = 100
+# Parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-n", "--number", required=True, help="# of test")
+ap.add_argument("-d", "--dataset", required=True, help="Path to input dataset")
+ap.add_argument("-id", "--imagedim", required=True, help="Image dimensions (pre-processing")
+ap.add_argument("-ts", "--testsize", required=True, help="Size of the test partition")
+ap.add_argument("-lr", "--learnrate", required=True, help="Initial learning rate")
+ap.add_argument("-bs", "--batchsize", required=True, help="Batch size")
+ap.add_argument("-e", "--epochs", required=True, help="Number of epochs")
+args = vars(ap.parse_args())
+
+# Modify parameters / assign arguments
+TEST = int(args["number"])
+DATASET = os.path.basename(os.path.normpath(args["dataset"]))
+WIDTH = int(args["imagedim"])
+HEIGHT = int(args["imagedim"])
+TEST_SIZE = float(args["testsize"])
+LR = float(args["learnrate"])
+BS = int(args["batchsize"])
+EPOCHS = int(args["epochs"])
 VERBOSE = 10
 
 # LR to exponential
@@ -52,21 +63,34 @@ mlbi_path = str(TEST) + "_mlbi_" + DATASET + "_" + str(WIDTH) + "_" + str(int(TE
 cmat_path = str(TEST) + "_cmat_" + DATASET + "_" + str(WIDTH) + "_" + str(int(TEST_SIZE*100)) + ".png"
 plot_path = str(TEST) + "_plot_" + DATASET + "_" + str(WIDTH) + "_" + str(int(TEST_SIZE*100)) + ".png"
 pred_path = str(TEST) + "_pred_" + DATASET + "_" + str(WIDTH) + "_" + str(int(TEST_SIZE*100)) + ".csv"
+conf_path = str(TEST) + "_conf_" + DATASET + "_" + str(WIDTH) + "_" + str(int(TEST_SIZE*100)) + ".txt"
 
 # Configure output dir
 BASE_OUTPUT = "output/" + DATASET + "/"
 Path(BASE_OUTPUT).mkdir(parents=True, exist_ok=True)
 
+# Configure output paths
 MODEL_PATH = BASE_OUTPUT + model_path
 MLBI_PATH = BASE_OUTPUT + mlbi_path
 CMAT_PATH = BASE_OUTPUT + cmat_path
 PLOT_PATH = BASE_OUTPUT + plot_path
 PRED_PATH = BASE_OUTPUT + pred_path
+CONF_PATH = BASE_OUTPUT + conf_path
 
-# Parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--dataset", required=True, help="path to input dataset")
-args = vars(ap.parse_args())
+# Save configuration variables
+config_dictionary = {
+        "test" : TEST,
+        "dataset_name" : DATASET,
+        "image_dimensions" : WIDTH,
+        "test_size" : TEST_SIZE,
+        "initial_learning_rate" : LR,
+        "batch_size" : BS,
+        "number_of_epochs" : EPOCHS
+        }
+f = open(CONF_PATH, "w")
+str = repr(config_dictionary)
+f.write("initial_configuration = " + str + "\n")
+f.close()
 
 # Initialize the image preprocessors
 sp = SimplePreprocessor(WIDTH, HEIGHT)
@@ -134,7 +158,7 @@ f.close()
 # Evaluate the network
 print("[INFO] evaluating network...")
 predictions = model.predict(testX, batch_size=32)
-report = classification_report(testY.argmax(axis=1), predictions.argmax(axis=1), target_names=["camioneta", "sedan"], output_dict=True)
+report = classification_report(testY.argmax(axis=1), predictions.argmax(axis=1), target_names=["camioneta", "sedan"])
 print(report)
 report_dict = classification_report(testY.argmax(axis=1), predictions.argmax(axis=1), target_names=["camioneta", "sedan"], output_dict=True)
 df = pandas.DataFrame(report_dict).transpose()
