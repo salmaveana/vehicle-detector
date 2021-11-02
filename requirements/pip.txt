@@ -1,0 +1,11 @@
+numpy
+tensorflow==2.5.0
+opencv-contrib-python
+scikit-image
+pillow
+imutils
+scikit-learn
+matplotlib
+progressbar2
+beautifulsoup4
+pandas
