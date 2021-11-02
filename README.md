@@ -135,3 +135,41 @@ mkvirtualenv detector -p python3
 ```sh
 $HOME/.local/bin/.virtualenvs/detector/bin/pip install -r pip.txt
 ```
+
+# Usage
+
+First step is activate the virtual environment
+
+```sh
+workon detector
+```
+
+Once activated we can run `train.py` or `predict.py`
+
+## Train
+
+Basic usage:
+
+```sh
+python train.py -n <test_n> -d <dataset> -id <img_dim> -ts <test_size> -lr <learn_rate> -bs <batch_size> -e <epochs>
+```
+
+Where: 
+
+`-n` or `--number`: Number of test in order to keep control of output files
+`-d` or `--dataset`: Path to input dataset
+`-id` or `--imagedim`: Image dimensions, i.e. 96, 128, etc (for pre-processing)
+`-ts` or `--testsize`: Size of the test partition
+`-lr` or `--learnrate`: Initial learning rate
+`-bs` or `--batchsize`: Batch size
+`-e` or `--epochs`: Number of epochs
+
+Example:
+
+```sh
+python train.py -n 1 -d vehicules -id 128 -ts 0.2 -lr 0.001 -bs 32 -e 100
+```
+
+## Predict
+
+_Work in progress..._
