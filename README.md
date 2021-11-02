@@ -156,13 +156,13 @@ python train.py -n <test_n> -d <dataset> -id <img_dim> -ts <test_size> -lr <lear
 
 Where: 
 
-`-n` or `--number`: Number of test in order to keep control of output files
-`-d` or `--dataset`: Path to input dataset
-`-id` or `--imagedim`: Image dimensions, i.e. 96, 128, etc (for pre-processing)
-`-ts` or `--testsize`: Size of the test partition
-`-lr` or `--learnrate`: Initial learning rate
-`-bs` or `--batchsize`: Batch size
-`-e` or `--epochs`: Number of epochs
+- `-n` or `--number`: Number of test in order to keep control of output files
+- `-d` or `--dataset`: Path to input dataset
+- `-id` or `--imagedim`: Image dimensions, i.e. 96, 128, etc (for pre-processing)
+- `-ts` or `--testsize`: Size of the test partition
+- `-lr` or `--learnrate`: Initial learning rate
+- `-bs` or `--batchsize`: Batch size
+- `-e` or `--epochs`: Number of epochs
 
 Example:
 
@@ -172,4 +172,23 @@ python train.py -n 1 -d vehicules -id 128 -ts 0.2 -lr 0.001 -bs 32 -e 100
 
 ## Predict
 
-_Work in progress..._
+Basic usage:
+
+```sh
+python train.py -td <test_data> -n <test_n> -d <dataset> -id <img_dim> -ts <test_size>
+```
+
+Where:
+
+- `-td` or `--testdata`: Path to input dataset for testing
+- `-n` or `--number`: Number of test created in training
+- `-d` or `--dataset`: Path to input dataset used in training
+- `-id` or `--imagedim`: Image dimensions used in training
+- `-ts` or `--testsize`: Size of the test partition used in training
+
+Example:
+
+```sh
+python predict.py -td ../datasets/vehicules-test -n 1 -d ../datasets/vehicules -id 128 -ts 0.2
+```
+
