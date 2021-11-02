@@ -11,6 +11,7 @@ from cnn.preprocessing import ImageToArrayPreprocessor
 from cnn.preprocessing import SimplePreprocessor
 from cnn.datasets import SimpleDatasetLoader
 from keras.models import load_model
+from pathlib import Path
 from imutils import paths
 import numpy as np
 import argparse
@@ -25,22 +26,46 @@ config = ConfigProto()
 config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
-# Modify paths and parameters
-TEST_DS = "../datasets/vehicles-test"
-MODEL_PATH = "output/car.h5"
-MLB_PATH = "output/car.pickle"
+# Parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-n", "--number", required=True, help="# of test")
+ap.add_argument("-d", "--dataset", required=True, help="Path to input dataset")
+ap.add_argument("-id", "--imagedim", required=True, help="Image dimensions (pre-processing")
+ap.add_argument("-ts", "--testsize", required=True, help="Size of the test partition")
+ap.add_argument("-td", "--testdata", required=True, help="Dataset for testing")
+args = vars(ap.parse_args())
+
+# Modify parameters / assign arguments
+TEST = int(args["number"])
+DATASET = os.path.basename(os.path.normpath(args["dataset"]))
+WIDTH = int(args["imagedim"])
+HEIGHT = int(args["imagedim"])
+TEST_SIZE = float(args["testsize"])
+
+# Create output strings
+model_path = str(TEST) + "_model_" + DATASET + "_" + str(WIDTH) + "_" + str(int(TEST_SIZE*100)) +  ".h5"
+mlbi_path = str(TEST) + "_mlbi_" + DATASET + "_" + str(WIDTH) + "_" + str(int(TEST_SIZE*100)) + ".pickle"
+
+# Configure output dir
+BASE_OUTPUT = "output/" + DATASET + "/"
+Path(BASE_OUTPUT).mkdir(parents=True, exist_ok=True)
+
+# Configure input paths
+TEST_DS = args["testdata"]
+MODEL_PATH = BASE_OUTPUT + model_path
+MLBI_PATH = BASE_OUTPUT + mlbi_path
 
 # Load object detector and label binarizer from disk
 print("[INFO] Loading network...")
 model = load_model(MODEL_PATH)
-mlb = pickle.loads(open(MLB_PATH, "rb").read())
+mlb = pickle.loads(open(MLBI_PATH, "rb").read())
 
 # Load images
 print("[INFO] Loading images...")
 imagePaths = np.array(list(paths.list_images(TEST_DS)))
 
 # Initialize the image preprocessors
-sp = SimplePreprocessor(32, 32)
+sp = SimplePreprocessor(WIDTH, HEIGHT)
 iap = ImageToArrayPreprocessor()
 
 # Load the dataset from disk then scale the raw pixel intensities
